@@ -9,36 +9,29 @@
   <!-- アプリケーションのルート要素を定義します -->
   <div id="root"></div>
 
-  <!-- WebAssembly（Wasm）とPyodideのCDNリンクを読み込みます -->
-  <script src="https://cdn.jsdelivr.net/npm/@webassemblyjs/wasm@1.0.8/index.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pyodide@0.17.0/pyodide.js"></script>
-
-  <script>
-    // メイン関数を定義します
+  <!-- PyodideのCDNリンクを読み込みます -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.18.0/full/pyodide.js"></script>
+  
+  <!-- STlite固有の動作スクリプトを読み込みます -->
+  <script type="text/javascript">
     async function main() {
-      // Pyodideをロードして初期化します
+      // Pyodideを初期化します
       const pyodide = await loadPyodide();
 
-      // StreamlitパッケージをPyodide内にロードします
-      await pyodide.loadPackage(['streamlit']);
-
-      // StreamlitアプリケーションのPythonコードを実行します
-      pyodide.runPython(`
-        import os
-        import streamlit as st
-
-        // Streamlitでタイトルとテキストを表示します
-        st.title('Hello Streamlit and STlite!')
-        st.write('This is a simple Streamlit app running on STlite.')
-                
-        // 変更が必要な部分:
-        // Streamlitアプリケーションのファイルパスを指定します
-        // 現在は 'public/app.py' となっていますが、実際のファイルパスに応じて修正する必要があります
-        stlite_path = 'C:/Users/fx29736.DC00/Desktop/particle_analysis/docs/app.py'
-
-        // 指定したファイルパスを実行します
-        exec(open(stlite_path).read())
+      // 必要なパッケージをロード
+      await pyodide.loadPackage(['micropip']);
+      await pyodide.runPythonAsync(`
+        import micropip
+        await micropip.install('streamlit')
       `);
+
+      // Pythonスクリプトの実行
+      const script = `import streamlit as st
+st.title('Hello Streamlit and STlite!')
+st.write('This is a simple Streamlit app running on STlite.')
+st.write('All code is executed within the browser using Pyodide and STlite.')`;
+
+      pyodide.runPython(script);
     }
 
     // メイン関数を呼び出して実行します
